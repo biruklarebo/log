@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>LogMacros</title>
+<style>
+  body{font:600 17px -apple-system,system-ui,sans-serif;margin:0;padding:32px 20px;text-align:center;background:#101512;color:#e8eee9}
+  a{display:inline-block;margin-top:16px;padding:14px 22px;border-radius:12px;background:#3fbf7f;color:#0b1a12;text-decoration:none;font-weight:800}
+  p{color:#9aa89e;font-weight:500}
+</style>
+</head>
+<body>
+<div id="msg">Opening Shortcuts…</div>
+<a id="go" href="#">Log to MacroFactor</a>
+<p id="sum"></p>
+<script>
+  // Usage: #name=CFA%2012ct%20Nuggets&kcal=200&p=38&c=2&f=5
+  // The fragment (#...) never leaves the device; ?query is accepted as a fallback.
+  // Shortcut name is hard-coded on purpose so links can't run other shortcuts.
+  var q = new URLSearchParams(location.hash.slice(1) || location.search);
+  function n(k){ var v = parseInt(q.get(k), 10); return isNaN(v) || v < 0 ? 0 : Math.min(v, 10000); }
+  var payload = {
+    name: (q.get("name") || "Quick Add").slice(0, 40),
+    kcal: n("kcal"), p: n("p"), c: n("c"), f: n("f")
+  };
+  var url = "shortcuts://run-shortcut?name=LogMacros" +
+            "&input=text&text=" + encodeURIComponent(JSON.stringify(payload));
+  document.getElementById("go").href = url;
+  document.getElementById("sum").textContent =
+    payload.name + " · " + payload.kcal + " cal · P " + payload.p + " · C " + payload.c + " · F " + payload.f;
+  if (payload.kcal > 0) {
+    location.href = url;
+    setTimeout(function(){ document.getElementById("msg").textContent = "If Shortcuts didn't open, tap the button."; }, 1200);
+  } else {
+    document.getElementById("msg").textContent = "No calories in the link.";
+  }
+</script>
+</body>
+</html>
